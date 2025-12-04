@@ -1,165 +1,1276 @@
-# Phaser Webpack Template
+---
 
-This is a Phaser 3 project template that uses webpack for bundling. It supports hot-reloading for quick development workflow and includes scripts to generate production-ready builds.
+## 📘 Lecture Notes: Creating the First Phaser Game Skeleton
 
-**[This Template is also available as a TypeScript version.](https://github.com/phaserjs/template-webpack-ts)**
+This is the **first real Phaser coding lecture** 🎮
+You created:
 
-### Versions
+* A Phaser game instance
+* Game configuration
+* Your first Scene lifecycle functions
 
-This template has been updated for:
+---
 
-- [Phaser 3.90.0](https://github.com/phaserjs/phaser)
-- [Webpack 5.99.6](https://github.com/webpack/webpack)
+## 🎮 What Is Phaser 3?
 
-![screenshot](screenshot.png)
+- JavaScript game framework
+- Used for 2D browser games
+- Uses **WebGL** (default renderer)
+- Automatically falls back to Canvas if WebGL isn’t supported
 
-## Requirements
+---
 
-[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+## 📂 Where All Game Code Lives
 
-## Available Commands
+✅ **Most work happens here:**
 
-| Command | Description |
-|---------|-------------|
-| `npm install` | Install project dependencies |
-| `npm run dev` | Launch a development web server |
-| `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
-| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
-
-## Writing Code
-
-After cloning the repo, run `npm install` from your project directory. Then, you can start the local development server by running `npm run dev`.
-
-The local development server runs on `http://localhost:8080` by default. Please see the webpack documentation if you wish to change this, or add SSL support.
-
-Once the server is running you can edit any of the files in the `src` folder. Webpack will automatically recompile your code and then reload the browser.
-
-## Template Project Structure
-
-We have provided a default project structure to get you started. This is as follows:
-
-| Path                         | Description                                                |
-|------------------------------|------------------------------------------------------------|
-| `public/index.html`          | A basic HTML page to contain the game.                     |
-| `public/assets`              | Game sprites, audio, etc. Served directly at runtime.      |
-| `public/style.css`           | Global layout styles.                                      |
-| `src/main.js`                | Application bootstrap.                                     |
-| `src/game`                   | Folder containing the game code.                           |
-| `src/game/main.js`           | Game entry point: configures and starts the game.          |
-| `src/game/scenes`            | Folder with all Phaser game scenes.                        |
-
-
-## Handling Assets
-
-Webpack supports loading assets via JavaScript module `import` statements.
-
-This template provides support for both embedding assets and also loading them from a static folder. To embed an asset, you can import it at the top of the JavaScript file you are using it in:
-
-```js
-import logoImg from './assets/logo.png'
+```
+src/index.js
 ```
 
-To load static files such as audio files, videos, etc place them into the `public/assets` folder. Then you can use this path in the Loader calls within Phaser:
+---
+
+## 🧱 Step 1: Import Phaser
 
 ```js
-preload ()
-{
-    //  This is an example of an imported bundled image.
-    //  Remember to import it at the top of this file
-    this.load.image('logo', logoImg);
+import Phaser from "phaser";
+```
 
-    //  This is an example of loading a static image
-    //  from the public/assets folder:
-    this.load.image('background', 'assets/bg.png');
+✅ Phaser is available because it’s installed in `node_modules`
+
+---
+
+## 🧱 Step 2: Create Game Configuration Object
+
+```js
+const config = {
+  type: Phaser.AUTO, // ✅ Automatically chooses WebGL/Canvas
+  width: 800, // ✅ Canvas width
+  height: 600, // ✅ Canvas height
+};
+```
+
+### ❓ Why `Phaser.AUTO`?
+
+- Uses WebGL if available
+- WebGL = **Web Graphics Library**
+- JS API for rendering 2D/3D graphics
+- Supported by almost all modern browsers
+
+---
+
+## 🧱 Step 3: Add Physics Engine
+
+```js
+physics: {
+  default: "arcade",
 }
 ```
 
-When you issue the `npm run build` command, all static assets are automatically copied to the `dist/assets` folder.
+✅ **Arcade Physics**
 
-## Deploying to Production
+- Lightweight
+- Fast
+- Perfect for Flappy Bird–style games
+- Handles gravity, velocity, collisions
 
-After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
+---
 
-In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
+## 🧱 Step 4: Add a Scene
 
-## Customizing the Template
+A **Scene = what you see on screen**
 
-### Babel
+Phaser lifecycle:
 
-You can write modern ES6+ JavaScript and Babel will transpile it to a version of JavaScript that you want your project to support. The targeted browsers are set in the `.babelrc` file and the default currently targets all browsers with total usage over "0.25%" but excludes IE11 and Opera Mini.
+1. `preload()` – load assets
+2. `create()` – create objects
+3. `update()` – game loop (runs every frame)
 
- ```
-"browsers": [
-  ">0.25%",
-  "not ie 11",
-  "not op_mini all"
-]
- ```
+For now, we use only `preload` and `create`.
 
-### Webpack
+---
 
-If you want to customize your build, such as adding a new webpack loader or plugin (i.e. for loading CSS or fonts), you can modify the `webpack/config.js` file for cross-project changes, or you can modify and/or create new configuration files and target them in specific npm tasks inside of `package.json`. Please see the [Webpack documentation](https://webpack.js.org/) for more information.
+## ✅ Final Working Code (Lecture End State)
 
-## About log.js
+```js
+import Phaser from "phaser";
 
-If you inspect our node scripts you will see there is a file called `log.js`. This file makes a single silent API call to a domain called `gryzor.co`. This domain is owned by Phaser Studio Inc. The domain name is a homage to one of our favorite retro games.
+function preload() {
+  debugger; // ✅ called first
+}
 
-We send the following 3 pieces of data to this API: The name of the template being used (vue, react, etc). If the build was 'dev' or 'prod' and finally the version of Phaser being used.
+function create() {
+  debugger; // ✅ called after preload
+}
 
-At no point is any personal data collected or sent. We don't know about your project files, device, browser or anything else. Feel free to inspect the `log.js` file to confirm this.
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  physics: {
+    default: "arcade",
+  },
+  scene: {
+    preload,
+    create,
+  },
+};
 
-Why do we do this? Because being open source means we have no visible metrics about which of our templates are being used. We work hard to maintain a large and diverse set of templates for Phaser developers and this is our small anonymous way to determine if that work is actually paying off, or not. In short, it helps us ensure we're building the tools for you.
-
-However, if you don't want to send any data, you can use these commands instead:
-
-Dev:
-
-```bash
-npm run dev-nolog
+new Phaser.Game(config);
 ```
 
-Build:
+---
 
-```bash
-npm run build-nolog
+## 🧪 Understanding `this` Context
+
+Inside `preload` & `create`:
+
+```js
+this; // ✅ refers to the current Scene
 ```
 
-Or, to disable the log entirely, simply delete the file `log.js` and remove the call to it in the `scripts` section of `package.json`:
+The scene provides:
 
-Before:
+- Asset loader
+- Object creation
+- Physics
+- Input
+- Cameras
+- Animations
 
-```json
-"scripts": {
-    "dev": "node log.js dev & dev-template-script",
-    "build": "node log.js build & build-template-script"
-},
+Example (not used yet):
+
+```js
+this.load;
+this.add;
+this.physics;
+this.cameras;
 ```
 
-After:
+📌 **Very important concept**:
 
-```json
-"scripts": {
-    "dev": "dev-template-script",
-    "build": "build-template-script"
-},
+> `this` = Scene instance
+
+---
+
+## 🔍 How Execution Happens
+
+When you refresh the browser:
+
+1️⃣ `preload()` runs
+2️⃣ `create()` runs
+3️⃣ Game waits (update not added yet)
+
+✅ You verified this using `debugger`
+
+---
+
+## ✅ Browser Result
+
+- Canvas size: **800 × 600**
+- Black screen
+- No errors
+- Game instance successfully created
+
+✅ This is exactly what we want at this stage
+
+---
+
+## 🏁 End of Lecture Checklist
+
+✔ Phaser imported
+✔ Game config created
+✔ Renderer set
+✔ Physics enabled
+✔ Scene lifecycle understood
+✔ Debugger tested
+
+---
+
+---
+
+## 📘 Lecture Notes: Loading & Displaying an Image in Phaser
+
+In this lecture you learned:
+
+- How to **load assets** in Phaser
+- How to **display images**
+- How Phaser’s **coordinate system** works
+- Why images appear cropped if positioned incorrectly
+
+Framework used: **Phaser 3**
+
+---
+
+## 📂 Files Used
+
+```
+src/
+ ├── index.js        ✅ main game file
+ └── assets/
+      └── sky.png    ✅ image displayed
 ```
 
-Either of these will stop `log.js` from running. If you do decide to do this, please could you at least join our Discord and tell us which template you're using! Or send us a quick email. Either will be super-helpful, thank you.
+---
 
-## Join the Phaser Community!
+## 🧠 Phaser Scene Lifecycle (Reminder)
 
-We love to see what developers like you create with Phaser! It really motivates us to keep improving. So please join our community and show-off your work 😄
+Order of execution:
+1️⃣ `preload()` → load assets
+2️⃣ `create()` → create & display objects
+3️⃣ `update()` → runs every frame (not used yet)
 
-**Visit:** The [Phaser website](https://phaser.io) and follow on [Phaser Twitter](https://twitter.com/phaser_)<br />
-**Play:** Some of the amazing games [#madewithphaser](https://twitter.com/search?q=%23madewithphaser&src=typed_query&f=live)<br />
-**Learn:** [API Docs](https://newdocs.phaser.io), [Support Forum](https://phaser.discourse.group/) and [StackOverflow](https://stackoverflow.com/questions/tagged/phaser-framework)<br />
-**Discord:** Join us on [Discord](https://discord.gg/phaser)<br />
-**Code:** 2000+ [Examples](https://labs.phaser.io)<br />
-**Read:** The [Phaser World](https://phaser.io/community/newsletter) Newsletter<br />
+---
 
-Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
+## ✅ Step 1: Load Image in `preload()`
 
-The Phaser logo and characters are &copy; 2011 - 2025 Phaser Studio Inc.
+```js
+import sky from "./assets/sky.png";
 
-All rights reserved.
+function preload() {
+  // key = "sky"
+  // path = assets/sky.png
+  this.load.image("sky", sky);
+}
+```
+
+### 🔑 Key Points
+
+- `"sky"` is a **unique key**
+- You use this key later to display the image
+- Assets must be loaded **before create()**
+
+---
+
+## ✅ Step 2: Display Image in `create()`
+
+### ❌ Initial Attempt (Not Centered)
+
+```js
+function create() {
+  this.add.image(0, 0, "sky");
+}
+```
+
+### Why this looks wrong ❓
+
+- `(0, 0)` is **top-left of the canvas**
+- Phaser positions images **by their center**
+- Half of the image goes outside the canvas
+
+---
+
+## 📐 Phaser Coordinate System (VERY IMPORTANT)
+
+```
+(0,0) ───────────▶ X
+  │
+  │
+  ▼
+  Y
+```
+
+- `(0,0)` = top-left corner
+- Images are positioned **from their center**
+- So placing at `(0,0)` hides most of the image
+
+---
+
+## ✅ Step 3: Correctly Center the Image
+
+### ✅ Correct & Final Code
+
+```js
+function create() {
+  this.add.image(config.width / 2, config.height / 2, "sky");
+}
+```
+
+### 💡 Why this works
+
+- Canvas width = `800` → `800 / 2 = 400`
+- Canvas height = `600` → `600 / 2 = 300`
+- Image center aligns with canvas center ✅
+
+---
+
+## ✅ Final Working `index.js`
+
+```js
+import Phaser from "phaser";
+import sky from "./assets/sky.png";
+
+function preload() {
+  this.load.image("sky", sky);
+}
+
+function create() {
+  this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, "sky");
+}
+
+console.log(this.cameras.main.centerX, this.cameras.main.centerY);
+
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  physics: {
+    default: "arcade",
+  },
+  scene: {
+    preload,
+    create,
+  },
+};
+
+new Phaser.Game(config);
+```
+
+---
+
+## ✅ Result in Browser
+
+✔ Canvas visible
+✔ Image fully visible
+✔ Image centered perfectly
+
+---
+
+## 🧠 Mental Model to Remember
+
+> **Phaser places images from their CENTER, not top-left**
+
+---
+
+
+---
+
+# 📘 Lecture Notes: Physics, Body, Velocity & Update Loop
+
+*(Phaser 3)*
+
+---
+
+## 🎮 Sprite & Physics Body (Important Concept)
+
+* A **Sprite** does NOT automatically have physics.
+* `sprite.body` can be **null**.
+* To enable **Arcade Physics**, the sprite **must be created via physics system**.
+
+### ❌ Wrong (No physics body)
+
+```js
+bird = this.add.sprite(100, 300, "bird");
+console.log(bird.body); // null
+```
+
+### ✅ Correct (Physics enabled)
+
+```js
+bird = this.physics.add.sprite(100, 300, "bird");
+console.log(bird.body); // Arcade Physics Body ✅
+```
+
+✅ Now `bird.body` exists and includes:
+
+* velocity
+* gravity
+* acceleration
+* bounce
+* drag
+* mass
+* collision flags
+
+---
+
+## 📦 What is `body`?
+
+`body` is the **physics representation** of your sprite.
+
+From Phaser docs:
+
+> If the object is enabled for Arcade Physics, `body` contains a physics body. Otherwise, it is `null`.
+
+---
+
+## 🧲 Applying Forces
+
+There are **two main forces** used most of the time:
+
+### 1️⃣ Velocity (constant speed)
+
+```js
+bird.body.velocity.y = 200;
+```
+
+✅ Meaning:
+
+* Moves **200 pixels per second**
+* Speed is **constant**
+* No acceleration
+
+---
+
+### 2️⃣ Gravity (acceleration over time)
+
+```js
+bird.body.gravity.y = 200;
+```
+
+✅ Meaning:
+
+* Speed keeps **increasing**
+* After 1s → ~200 px/s
+* After 2s → ~400 px/s
+* After 3s → ~600 px/s
+
+👉 Gravity **adds velocity every frame**
+
+---
+
+## 🧠 Velocity vs Gravity (Easy Difference)
+
+| Force    | Behaviour                 |
+| -------- | ------------------------- |
+| Velocity | Constant speed            |
+| Gravity  | Speed increases over time |
+| Velocity | No acceleration           |
+| Gravity  | Acceleration              |
+
+---
+
+## 🔁 Game Loop: `update()` Function
+
+* `update()` runs **every frame**
+* Normally around **60 FPS**
+* Called ~60 times per second
+
+```js
+function update() {
+  console.log("frame");
+}
+```
+
+✅ You’ll see **~60 logs per second**
+
+---
+
+## ⏱ Delta Time (`delta`)
+
+Phaser passes **delta time** to `update()`:
+
+```js
+function update(time, delta) {
+  console.log(delta);
+}
+```
+
+✅ Typical output:
+
+* ~16 ms per frame
+
+### Why?
+
+```
+1000ms / 60fps ≈ 16.6ms
+```
+
+📌 Delta = time since last frame
+📌 Used for **frame-independent movement**
+
+---
+
+## 📈 Debugging Velocity in Update
+
+### With Velocity
+
+```js
+bird.body.velocity.y = 200;
+
+function update() {
+  console.log(bird.body.velocity.y);
+}
+```
+
+✅ Output:
+
+```
+200
+200
+200
+200
+```
+
+(Constant)
+
+---
+
+### With Gravity
+
+```js
+bird.body.gravity.y = 200;
+
+function update() {
+  console.log(bird.body.velocity.y);
+}
+```
+
+✅ Output:
+
+```
+10
+40
+80
+140
+220
+```
+
+(Increasing every frame)
+
+---
+
+## 🧪 Full Minimal Example (This Lecture)
+
+```js
+let bird;
+
+function preload() {
+  this.load.image("bird", "assets/bird.png");
+}
+
+function create() {
+  bird = this.physics.add.sprite(
+    this.scale.width / 10,
+    this.scale.height / 2,
+    "bird"
+  );
+
+  bird.body.gravity.y = 200; // try velocity.y = 200 to compare
+}
+
+function update(time, delta) {
+  console.log("Velocity:", bird.body.velocity.y);
+}
+```
+
+---
+
+## ✅ Key Takeaways (Very Important)
+
+✔ `this.add.sprite()` → NO physics
+✔ `this.physics.add.sprite()` → Physics enabled
+✔ `velocity` = constant movement
+✔ `gravity` = acceleration
+✔ `update()` runs ~60 times/sec
+✔ `delta ≈ 16ms` per frame
+✔ Gravity modifies velocity over time
+
+---
+
+# 📘 Lecture Notes: Gravity Over Time (Phaser 3)
+
+---
+
+## 🧠 Recap: Gravity vs Velocity
+
+### Velocity
+
+* Constant speed
+* Does **not** change unless you modify it
+
+### Gravity
+
+* Starts from **0 velocity**
+* **Accelerates every second**
+* Continuously increases velocity
+
+---
+
+## 📈 How Gravity Works (Mental Model)
+
+Assume:
+
+```js
+bird.body.gravity.y = 200;
+```
+
+| Time    | Velocity (px/s) |
+| ------- | --------------- |
+| T0 (0s) | 0               |
+| T1 (1s) | 200             |
+| T2 (2s) | 400             |
+| T3 (3s) | 600             |
+| T4 (4s) | 800             |
+
+✅ Velocity increases **linearly over time**
+
+---
+
+## 🔁 `update()` & Delta Time
+
+* `update()` runs ~**60 times/sec**
+* Each frame ≈ **16 ms**
+* Delta = time since last frame (in ms)
+
+```js
+function update(time, delta) {
+  console.log(delta); // ~16ms
+}
+```
+
+✅ 60 × 16 ≈ 1000 ms = 1 second
+
+---
+
+## ⏳ Tracking Time Manually (Exercise)
+
+We accumulate delta time to detect **1 second elapsed**.
+
+### ✅ Setup Variable
+
+```js
+let totalDelta = 0;
+```
+
+---
+
+## ✅ Logging Velocity Once Per Second
+
+```js
+function update(time, delta) {
+  totalDelta += delta;
+
+  if (totalDelta < 1000) {
+    return;
+  }
+
+  console.log("Velocity Y:", bird.body.velocity.y);
+
+  totalDelta = 0;
+}
+```
+
+✅ What you’ll see in console:
+
+```
+200
+400
+600
+800
+```
+
+---
+
+## 🎯 Why This Matters
+
+* Gravity **adds velocity every frame**
+* Each second makes the object fall faster
+* This explains **Flappy Bird drop mechanics**
+
+---
+
+## 🧪 Full Working Example (Lecture Version)
+
+```js
+let bird;
+let totalDelta = 0;
+
+function preload() {
+  this.load.image("bird", "assets/bird.png");
+}
+
+function create() {
+  bird = this.physics.add.sprite(
+    this.scale.width / 10,
+    this.scale.height / 2,
+    "bird"
+  );
+
+  bird.body.gravity.y = 200;
+}
+
+function update(time, delta) {
+  totalDelta += delta;
+
+  if (totalDelta < 1000) return;
+
+  console.log("Velocity:", bird.body.velocity.y);
+  totalDelta = 0;
+}
+```
+
+---
+
+## 🌍 Applying Global Gravity (Scene-Level)
+
+Instead of:
+
+```js
+bird.body.gravity.y = 200;
+```
+
+✅ Apply gravity to **all objects**:
+
+```js
+const config = {
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 200 },
+      debug: false
+    }
+  }
+};
+```
+
+✅ Every physics-enabled object gets gravity automatically
+
+---
+
+## ➕ Combining Global + Local Gravity
+
+```js
+// Global
+arcade: {
+  gravity: { y: 200 }
+}
+
+// Extra gravity for bird
+bird.body.gravity.y = 200;
+```
+
+✅ Effective gravity on bird = `400`
+
+---
+
+## ⚠️ Important Notes
+
+✔ Global gravity + body gravity **stack**
+✔ Velocity is affected by gravity automatically
+✔ Resetting velocity is important in jump mechanics
+✔ Flappy Bird jump works by **setting negative velocity**
+
+---
+
+## ✅ Key Takeaways
+
+✅ Gravity starts from zero velocity
+✅ Gravity increases velocity every second
+✅ Velocity stays constant unless modified
+✅ `delta` helps measure real time
+✅ Global gravity applies to all physics objects
+✅ Local gravity overrides / adds to global
+
+---
+
+
+# BACKGROUND
+
+
+In **Phaser**, for *background repeating* you should **NOT use `image`**.
+
+✅ The correct tool is **`TileSprite`**.
+
+---
+
+## ✅ Why `TileSprite`?
+
+* Automatically **repeats (tiles)** the texture
+* Perfect for **scrolling / infinite backgrounds**
+* No manual looping needed
+
+---
+
+## ✅ Basic Background Repeat (800 × 600)
+
+Replace this ❌
+
+```js
+this.add.image(0, 0, "sky").setOrigin(0);
+```
+
+With this ✅
+
+```js
+this.bg = this.add.tileSprite(
+  0,
+  0,
+  config.width,
+  config.height,
+  "sky"
+).setOrigin(0);
+```
+
+This will **repeat `sky.png` to fill entire canvas**.
+
+---
+
+## ✅ Scrolling Background (Flappy-style)
+
+Add this in `update()` 👇
+
+```js
+function update() {
+  this.bg.tilePositionX += 1; // scroll speed
+}
+```
+
+✅ Background repeats **infinitely**
+✅ No gaps
+✅ Super smooth
+
+---
+
+## ✅ Full Working Example
+
+```js
+let bird;
+let bg;
+const SPEED = 200;
+
+function preload() {
+  this.load.image("sky", sky);
+  this.load.image("bird", birdImg);
+}
+
+function create() {
+  bg = this.add.tileSprite(
+    0,
+    0,
+    config.width,
+    config.height,
+    "sky"
+  ).setOrigin(0);
+
+  bird = this.physics.add.sprite(
+    config.width / 10,
+    config.height / 2,
+    "bird"
+  ).setOrigin(0);
+
+  bird.body.velocity.x = SPEED;
+}
+
+function update() {
+  bg.tilePositionX += 1;
+}
+```
+
+---
+
+## ✅ Important Notes (very useful)
+
+### ✔ Image can be ANY size
+
+TileSprite will:
+
+* Automatically repeat small images
+* Clip large images cleanly
+
+---
+
+### ✅ Want responsive background?
+
+Use camera size instead:
+
+```js
+bg = this.add.tileSprite(
+  0,
+  0,
+  this.cameras.main.width,
+  this.cameras.main.height,
+  "sky"
+).setOrigin(0);
+```
+
+---
+
+### ✅ Vertical repeat too?
+
+```js
+bg.tilePositionY += 1;
+```
+
+---
+
+## 🧠 Rule of Thumb (remember forever)
+
+| Goal                 | Phaser Object          |
+| -------------------- | ---------------------- |
+| Static image         | `Image`                |
+| Repeating background | ✅ `TileSprite`         |
+| Parallax             | Multiple `TileSprite`s |
+
+---
+
+
+
+---
+
+# ✅ Lecture Notes — Flapping (Gravity + Input) in Phaser 3
+
+## 🎯 Goal of This Lecture
+
+* Apply **gravity** to the bird
+* Make the bird **fall continuously**
+* On **mouse click OR space key press**, apply an **upward force (flap)**
+* Understand how **gravity + velocity** work together
+
+---
+
+## 🧠 Core Physics Concept (Very Important)
+
+### Velocity vs Gravity
+
+* **Gravity** continuously increases downward velocity
+* **Velocity.y < 0** → moves **up**
+* **Velocity.y > 0** → moves **down**
+* Flap = **instant upward velocity**
+* Gravity pulls bird back down after flap
+
+---
+
+## ✅ Step 1: Apply Gravity (Create Function)
+
+```js
+function create() {
+  this.add.image(0, 0, "sky").setOrigin(0);
+
+  bird = this.physics.add.sprite(
+    config.width / 10,
+    config.height / 2,
+    "bird"
+  ).setOrigin(0);
+
+  // Apply gravity
+  bird.body.gravity.y = 400;
+}
+```
+
+✅ Bird falls automatically
+❌ No upward movement yet
+
+---
+
+## ✅ Step 2: Capture Mouse Click (Pointer Down)
+
+```js
+this.input.on("pointerdown", flap);
+```
+
+* `pointerdown` = mouse click / tap
+* Calls `flap()` whenever clicked
+
+---
+
+## ✅ Step 3: Capture Space Key (Keyboard Input)
+
+⚠️ **Key names are CASE-SENSITIVE**
+
+✅ Correct event:
+
+```js
+this.input.keyboard.on("keydown-SPACE", flap);
+```
+
+❌ Wrong (won’t work):
+
+```js
+keydown-space
+space_down
+```
+
+---
+
+## ✅ Step 4: Flap Function (Upward Velocity)
+
+```js
+const FLAP_VELOCITY = 250;
+
+function flap() {
+  bird.body.velocity.y = -FLAP_VELOCITY;
+}
+```
+
+### ✅ Why negative?
+
+* Negative `y` velocity = upward movement
+* Gravity will immediately start pulling bird down again
+
+---
+
+## ✅ Step 5: Final Clean Working Example
+
+```js
+let bird;
+const FLAP_VELOCITY = 250;
+
+function preload() {
+  this.load.image("sky", sky);
+  this.load.image("bird", birdImg);
+}
+
+function create() {
+  this.add.image(0, 0, "sky").setOrigin(0);
+
+  bird = this.physics.add.sprite(
+    config.width / 10,
+    config.height / 2,
+    "bird"
+  ).setOrigin(0);
+
+  // Gravity
+  bird.body.gravity.y = 400;
+
+  // Mouse click
+  this.input.on("pointerdown", flap);
+
+  // Space key
+  this.input.keyboard.on("keydown-SPACE", flap);
+}
+
+function flap() {
+  bird.body.velocity.y = -FLAP_VELOCITY;
+}
+```
+
+---
+
+## ✅ Optional: Global Gravity (All Physics Objects)
+
+```js
+const config = {
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 400 },
+      debug: false
+    }
+  }
+};
+```
+
+Then **remove**:
+
+```js
+bird.body.gravity.y = 400;
+```
+
+---
+
+## 🎮 Game Feel Tuning (Very Important)
+
+| Effect          | Change                 |
+| --------------- | ---------------------- |
+| Faster fall     | Increase gravity       |
+| Stronger flap   | Increase flap velocity |
+| Softer controls | Lower both             |
+
+Example balance:
+
+```js
+gravity = 400
+flap = 250
+```
+
+---
+
+## 🧠 Common Mistakes (You Avoided Them ✅)
+
+❌ Using positive velocity for flap
+❌ Forgetting gravity
+❌ Wrong key event name
+❌ Adding velocity instead of setting it
+
+✅ Correct approach:
+
+```js
+bird.body.velocity.y = -FLAP_VELOCITY;
+```
+
+---
+
+Below are **clean, exam-ready NOTES + Phaser 3 CODE SNIPPETS** for this lecture.
+You can copy-paste directly into your project ✅
+
+---
+
+
+## 🎯 Goal of This Lecture
+
+* Bird flies up when:
+
+  * Mouse click
+  * Space key press
+* Apply **gravity** (bird falls down)
+* **Restart the game** when:
+
+  * Bird goes **below canvas**
+  * Bird goes **above canvas**
+* Reset:
+
+  * Bird position
+  * Bird vertical velocity
+
+---
+
+## ✅ Key Concepts You Learn
+
+### 1️⃣ Gravity keeps increasing velocity
+
+* Gravity continuously increases `body.velocity.y`
+* When restarting → **reset velocity to 0**
+
+---
+
+### 2️⃣ Canvas bounds logic (Game Over)
+
+Bird is **out of bounds** when:
+
+```js
+bird.y > config.height          // bottom
+bird.y < -bird.height           // top
+```
+
+---
+
+### 3️⃣ Restarting the bird (instead of alert)
+
+Reset:
+
+* X position
+* Y position
+* Velocity Y
+
+---
+
+## ✅ Constants & Globals
+
+```js
+let bird;
+
+const GRAVITY = 400;
+const FLAP_VELOCITY = 250;
+
+const INITIAL_BIRD_POSITION = {
+  x: config.width * 0.1,
+  y: config.height / 2,
+};
+```
+
+---
+
+## ✅ Preload
+
+```js
+function preload() {
+  this.load.image("sky", "assets/sky.png");
+  this.load.image("bird", "assets/bird.png");
+}
+```
+
+---
+
+## ✅ Create (Setup Once)
+
+```js
+function create() {
+  // Background
+  this.add.image(0, 0, "sky").setOrigin(0);
+
+  // Bird
+  bird = this.physics.add.sprite(
+    INITIAL_BIRD_POSITION.x,
+    INITIAL_BIRD_POSITION.y,
+    "bird"
+  );
+
+  bird.body.gravity.y = GRAVITY;
+
+  // Input
+  this.input.on("pointerdown", flap);
+  this.input.keyboard.on("keydown-SPACE", flap);
+}
+```
+
+---
+
+## ✅ Flap Function (Move Up)
+
+```js
+function flap() {
+  bird.body.velocity.y = -FLAP_VELOCITY;
+}
+```
+
+✅ Negative velocity = move upward
+✅ Gravity pulls it back down
+
+---
+
+## ✅ Update (Game Loop)
+
+```js
+function update() {
+  checkOutOfBounds();
+}
+```
+
+---
+
+## ✅ Out-of-Bounds Check
+
+```js
+function checkOutOfBounds() {
+  if (
+    bird.y > config.height ||
+    bird.y < -bird.height
+  ) {
+    restartBirdPosition();
+  }
+}
+```
+
+---
+
+## ✅ Restart Bird Logic (IMPORTANT)
+
+```js
+function restartBirdPosition() {
+  bird.setPosition(
+    INITIAL_BIRD_POSITION.x,
+    INITIAL_BIRD_POSITION.y
+  );
+
+  bird.body.velocity.y = 0; // RESET velocity ❗
+}
+```
+
+✅ Prevents gravity from stacking
+✅ Clean restart behavior
+
+---
+
+## ✅ Common Mistakes (Exam / Interview)
+
+❌ Restarting without resetting velocity
+❌ Handling input inside `update()`
+❌ Using `alert()` instead of logic
+❌ Forgetting bird height when checking top bound
+
+---
+
+## 🧠 Mental Model (Remember This)
+
+> **Gravity is permanent → velocity must be reset on restart**
+
+---
+
+## ✅ Final Result
+
+✔ Click / Space → bird flies up
+✔ Gravity pulls bird down
+✔ Bird exits screen → game restarts cleanly
+✔ Smooth Flappy-Bird-style behavior
+
+----
