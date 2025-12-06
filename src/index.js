@@ -24,6 +24,7 @@ let pipeVerticalDistanceRange = [100, 200];
 
 // actual random gap value
 let pipeVerticalDistance;
+let pipes;
 
 function preload() {
   // debugger;
@@ -49,35 +50,37 @@ function create() {
 
   // generate multiple pipe
   for (let i = 0; i < PIPES_TO_RENDER; i++) {
-    createPipe(this, i);
+    // createPipe(this, i);
+    const upperPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 1);
+    const lowerPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 0);
+
+    upperPipe.body.allowGravity = false;
+    lowerPipe.body.allowGravity = false;
+
+    // delegate to helper
+    placePipe(this, upperPipe, lowerPipe);
   }
 }
 
-function createPipe(scene, index) {
+function placePipe(scene, upperPipe, lowerPipe) {
   const [minGap, maxGap] = pipeVerticalDistanceRange;
-  pipeVerticalDistance = Phaser.Math.Between(minGap, maxGap);
+  const gap = Phaser.Math.Between(minGap, maxGap);
 
-  const pipeVerticalPosition = Phaser.Math.Between(
+  const verticalPos = Phaser.Math.Between(
     PIPE_VERTICAL_MARGIN,
-    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - pipeVerticalDistance
+    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - gap
   );
 
-  const xPos = CANVAS_WIDTH + index * 400;
+  // Increase horizontal distance for each new pipe
+  pipeHorizontalDistance += 400;
 
-  upperPipe = scene.physics.add
-    .sprite(xPos, pipeVerticalPosition, "pipe")
-    .setOrigin(0, 1);
+  // Position upper pipe
+  upperPipe.x = pipeHorizontalDistance;
+  upperPipe.y = verticalPos;
 
-  // disable gravity
-  upperPipe.body.allowGravity = false;
+  lowerPipe.x = pipeHorizontalDistance;
+  lowerPipe.y = verticalPos + gap;
 
-  lowerPipe = scene.physics.add
-    .sprite(xPos, upperPipe.y + pipeVerticalDistance, "pipe")
-    .setOrigin(0, 0);
-
-  lowerPipe.body.allowGravity = false;
-
-  // give pipes velocity towards the player
   upperPipe.body.velocity.x = -200;
   lowerPipe.body.velocity.x = -200;
 }
@@ -124,6 +127,39 @@ function restartBirdPosition() {
 function flap() {
   bird.body.velocity.y = -FLAP_VELOCITY;
 }
+
+// UN-USED FUNCTION ------------------
+
+function createPipe(scene, index) {
+  const [minGap, maxGap] = pipeVerticalDistanceRange;
+  pipeVerticalDistance = Phaser.Math.Between(minGap, maxGap);
+
+  const pipeVerticalPosition = Phaser.Math.Between(
+    PIPE_VERTICAL_MARGIN,
+    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - pipeVerticalDistance
+  );
+
+  const xPos = CANVAS_WIDTH + index * 400;
+
+  upperPipe = scene.physics.add
+    .sprite(xPos, pipeVerticalPosition, "pipe")
+    .setOrigin(0, 1);
+
+  // disable gravity
+  upperPipe.body.allowGravity = false;
+
+  lowerPipe = scene.physics.add
+    .sprite(xPos, upperPipe.y + pipeVerticalDistance, "pipe")
+    .setOrigin(0, 0);
+
+  lowerPipe.body.allowGravity = false;
+
+  // give pipes velocity towards the player
+  upperPipe.body.velocity.x = -200;
+  lowerPipe.body.velocity.x = -200;
+}
+
+// ============================
 
 const config = {
   type: Phaser.AUTO, // ✅ Automatically chooses WebGL/Canvas

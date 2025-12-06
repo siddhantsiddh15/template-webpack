@@ -1454,9 +1454,6 @@ If you change origin → **you must change your math**.
 
 ------------
 
-Here are **clean, structured notes + code snippets** based exactly on what the lecture explains.
-This will help you continue your Flappy-Bird clone in Phaser like the Udemy course.
-
 ---
 
 # ✅ **NOTES — Rendering Multiple Pipes & Moving Them Toward Player**
@@ -1640,3 +1637,181 @@ Just say **"continue"** and I’ll give:
 * Restart mechanics
 
 Happy coding 🚀
+
+
+------------------
+
+Here are **clean, structured notes + ready-to-paste code snippets** based exactly on the lecture you provided.
+I’ve rewritten and clarified everything for easier understanding.
+
+---
+
+# ✅ **NOTES — Refactoring Pipes (Creating placePipe function)**
+
+### **What was happening earlier**
+
+* You created **multiple pipes** using a loop.
+* For each pipe:
+
+  * You created sprites inside the loop.
+  * You set velocity individually on each upper & lower pipe.
+  * Horizontal/vertical spacing logic was inside the loop.
+
+### **Goal of this lecture**
+
+Refactor code to:
+
+1. Move positioning logic into a new function
+   → `placePipe(upperPipe, lowerPipe)`
+2. Stop setting velocity individually
+3. No need to keep `upperPipe` and `lowerPipe` as global variables
+4. Create sprites first → position later
+
+### **Why this is good**
+
+* Clean separation of concerns
+* Code becomes easier to maintain
+* Future improvements (grouping pipes, recycling pipes) become easier
+
+---
+
+# ✅ **STEP 1 — Create empty pipe sprites in the loop**
+
+Instead of placing them immediately, create them at (0,0) first.
+
+```js
+for (let i = 0; i < PIPES_TO_RENDER; i++) {
+  // create sprites with default position (0,0)
+  const upperPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 1);
+  const lowerPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 0);
+
+  // no gravity
+  upperPipe.body.allowGravity = false;
+  lowerPipe.body.allowGravity = false;
+
+  // delegate to helper
+  placePipe(this, upperPipe, lowerPipe);
+}
+```
+
+---
+
+# ✅ **STEP 2 — Implement `placePipe()`**
+
+This function does:
+
+* random vertical gap
+* random vertical position
+* increments horizontal distance
+* applies velocity
+* positions upper & lower pipes
+
+### ✔ Full function below:
+
+```js
+let pipeHorizontalDistance = 0;
+
+function placePipe(scene, upperPipe, lowerPipe) {
+  const [minGap, maxGap] = pipeVerticalDistanceRange;
+  const gap = Phaser.Math.Between(minGap, maxGap);
+
+  const verticalPos = Phaser.Math.Between(
+    PIPE_VERTICAL_MARGIN,
+    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - gap
+  );
+
+  // Increase horizontal distance for each new pipe
+  pipeHorizontalDistance += 400;
+
+  // Position upper pipe
+  upperPipe.x = pipeHorizontalDistance;
+  upperPipe.y = verticalPos;
+
+  // Position lower pipe
+  lowerPipe.x = pipeHorizontalDistance;
+  lowerPipe.y = verticalPos + gap;
+
+  // Give both pipes velocity toward the player
+  upperPipe.body.velocity.x = -200;
+  lowerPipe.body.velocity.x = -200;
+}
+```
+
+---
+
+# ✅ **Important Changes**
+
+### 1. `upperPipe` and `lowerPipe` are now **local**, NOT global.
+
+### 2. Sprites are created at 0,0 → then placed by `placePipe()`.
+
+### 3. Velocity is applied inside the `placePipe()` function.
+
+### 4. Logic is now centralized and cleaner.
+
+---
+
+# 🚀 **FINAL COMBINED CODE SNIPPET (Paste-Ready)**
+
+```js
+const PIPES_TO_RENDER = 4;
+let pipeHorizontalDistance = 0;
+
+function create() {
+  this.bg = this.add.tileSprite(0, 0, config.width, config.height, "sky").setOrigin(0);
+
+  bird = this.physics.add
+    .sprite(INITIAL_BIRD_POSITION.x, INITIAL_BIRD_POSITION.y, "bird")
+    .setOrigin(0);
+  bird.body.gravity.y = GRAVITY;
+
+  // Create multiple pipes first, then place them
+  for (let i = 0; i < PIPES_TO_RENDER; i++) {
+    const upperPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 1);
+    const lowerPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 0);
+
+    upperPipe.body.allowGravity = false;
+    lowerPipe.body.allowGravity = false;
+
+    placePipe(this, upperPipe, lowerPipe);
+  }
+}
+
+function placePipe(scene, upperPipe, lowerPipe) {
+  const [minGap, maxGap] = pipeVerticalDistanceRange;
+  const gap = Phaser.Math.Between(minGap, maxGap);
+
+  const verticalPos = Phaser.Math.Between(
+    PIPE_VERTICAL_MARGIN,
+    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - gap
+  );
+
+  // horizontal spacing (increases each time)
+  pipeHorizontalDistance += 400;
+
+  upperPipe.x = pipeHorizontalDistance;
+  upperPipe.y = verticalPos;
+
+  lowerPipe.x = pipeHorizontalDistance;
+  lowerPipe.y = verticalPos + gap;
+
+  // move pipes left
+  upperPipe.body.velocity.x = -200;
+  lowerPipe.body.velocity.x = -200;
+}
+```
+
+---
+
+# Want next lecture notes as well?
+
+The next lecture covers:
+
+* Pipe spacing randomness
+* Grouping pipes into a `PhysicsGroup`
+* Setting velocity on the whole group instead of each pipe
+
+Just say **"continue"** and I’ll generate full notes + snippets.
+
+
+----------
