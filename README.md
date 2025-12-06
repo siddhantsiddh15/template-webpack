@@ -1274,3 +1274,369 @@ function restartBirdPosition() {
 ✔ Smooth Flappy-Bird-style behavior
 
 ----
+
+
+Good question — your logic is **almost correct**, but there are **two subtle Phaser gotchas** that together cause the pipe to go out of bounds.
+
+I’ll explain **exactly why** it happens and then give you the **correct fix**.
+
+---
+
+## ✅ Root cause #1 (MAIN ISSUE): `setOrigin(0, 1)` changes how `y` works
+
+```js
+upperPipe = scene.physics.add
+  .sprite(CANVAS_WIDTH / 4, pipeVerticalPosition, "pipe")
+  .setOrigin(0, 1);
+```
+
+### What this means:
+
+* `originY = 1` → **the `y` value is the BOTTOM of the pipe**
+* NOT the top
+
+But your vertical range assumes `y` is the **top**.
+
+---
+
+## ❌ Your current range calculation
+
+```js
+const pipeVerticalPosition = Phaser.Math.Between(
+  PIPE_VERTICAL_MARGIN,
+  CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - pipeVerticalDistance
+);
+```
+
+### Why this breaks
+
+* `pipeVerticalPosition` is used as **bottom of upper pipe**
+* But you did NOT subtract the **pipe height**
+* Result: the pipe’s top goes above the canvas
+
+So visually:
+
+```
+[ pipe top ]  ❌ goes above canvas
+|
+|  pipe
+|
+y (this value)
+```
+
+---
+
+## ✅ Correct calculation (THIS FIXES IT)
+
+Since `upperPipe.y` is the **bottom**, the lowest safe point is:
+
+```
+minY = pipe height + margin
+```
+
+### ✅ FIXED version
+
+```js
+const pipeHeight = 480; // your pipe sprite height
+
+const pipeVerticalPosition = Phaser.Math.Between(
+  pipeHeight + PIPE_VERTICAL_MARGIN,
+  CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - pipeVerticalDistance
+);
+```
+
+✅ Now the **top of the upper pipe never leaves the canvas**
+
+---
+
+## ✅ Root cause #2 (IMPORTANT): `RESIZE` + fixed constants
+
+You are using:
+
+```js
+scale: {
+  mode: Phaser.Scale.RESIZE,
+}
+```
+
+but also using:
+
+```js
+CANVAS_HEIGHT = 600;
+CANVAS_WIDTH = 800;
+```
+
+### Why this causes problems later
+
+If the browser resizes:
+
+* `scene.scale.height` ✅ changes
+* `CANVAS_HEIGHT` ❌ does NOT
+
+This WILL cause pipes to go out of bounds later.
+
+---
+
+## ✅ Proper way (BEST PRACTICE)
+
+Always calculate positions using **scene dimensions**, not constants.
+
+Replace this 👇
+
+```js
+CANVAS_HEIGHT
+CANVAS_WIDTH
+```
+
+With this ✅
+
+```js
+scene.scale.height
+scene.scale.width
+```
+
+---
+
+## ✅ FINAL FIXED `createPipe()` (COPY-PASTE SAFE)
+
+```js
+function createPipe(scene) {
+  const [minGap, maxGap] = pipeVerticalDistanceRange;
+  pipeVerticalDistance = Phaser.Math.Between(minGap, maxGap);
+
+  const pipeHeight = 480;
+
+  const pipeVerticalPosition = Phaser.Math.Between(
+    pipeHeight + PIPE_VERTICAL_MARGIN,
+    scene.scale.height - PIPE_VERTICAL_MARGIN - pipeVerticalDistance
+  );
+
+  upperPipe = scene.physics.add
+    .sprite(scene.scale.width / 4, pipeVerticalPosition, "pipe")
+    .setOrigin(0, 1);
+
+  upperPipe.body.allowGravity = false;
+
+  lowerPipe = scene.physics.add
+    .sprite(
+      scene.scale.width / 4,
+      upperPipe.y + pipeVerticalDistance,
+      "pipe"
+    )
+    .setOrigin(0, 0);
+
+  lowerPipe.body.allowGravity = false;
+}
+```
+
+---
+
+## 🧠 Mental model (remember this forever)
+
+| Origin     | `y` represents         |
+| ---------- | ---------------------- |
+| `(0, 0)`   | top of sprite          |
+| `(0, 0.5)` | center                 |
+| `(0, 1)`   | **bottom of sprite** ✅ |
+
+If you change origin → **you must change your math**.
+
+---
+
+## ✅ TL;DR
+
+**Pipes go out of bounds because:**
+
+1. `setOrigin(0, 1)` makes `y` the bottom
+2. You didn’t subtract pipe height
+3. `RESIZE` + fixed constants is dangerous
+
+
+------------
+
+Here are **clean, structured notes + code snippets** based exactly on what the lecture explains.
+This will help you continue your Flappy-Bird clone in Phaser like the Udemy course.
+
+---
+
+# ✅ **NOTES — Rendering Multiple Pipes & Moving Them Toward Player**
+
+### **1. Goal**
+
+We want:
+
+* Multiple pipes generated ahead of the player
+* Each pipe having:
+
+  * random vertical position
+  * random gap
+* Pipes placed horizontally at different distances
+* Pipes moving left (towards the player)
+
+Finally, only some pipes will be visible in the canvas, others will pre-load outside the screen.
+
+---
+
+# ✅ **2. Setting number of pipes**
+
+```js
+const PIPES_TO_RENDER = 4;
+```
+
+---
+
+# ✅ **3. Creating multiple pipes in a loop**
+
+Instead of creating just one pipe, we loop:
+
+```js
+for (let i = 0; i < PIPES_TO_RENDER; i++) {
+    createPipe(this, i);
+}
+```
+
+Each pipe will be placed further to the right based on `i`.
+
+---
+
+# ✅ **4. Horizontal distance between pipes**
+
+We track this:
+
+```js
+let pipeHorizontalDistance = 0;
+```
+
+Each new pipe is placed `400px` further:
+
+```js
+pipeHorizontalDistance += 400;
+```
+
+We can later turn this into a random range.
+
+---
+
+# ✅ **5. Updated createPipe() that supports multiple pipes**
+
+Important:
+
+* Each pipe has its own vertical gap
+* Each pipe is positioned using the horizontal distance
+
+### ✔ Final snippet:
+
+```js
+function createPipe(scene, index) {
+  const [minGap, maxGap] = pipeVerticalDistanceRange;
+  const gap = Phaser.Math.Between(minGap, maxGap);
+
+  const verticalPos = Phaser.Math.Between(
+    PIPE_VERTICAL_MARGIN,
+    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - gap
+  );
+
+  // horizontal offset based on index:
+  const xPos = CANVAS_WIDTH + index * 400; // 400 = spacing between pipes
+
+  const upper = scene.physics.add.sprite(xPos, verticalPos, "pipe")
+    .setOrigin(0, 1);
+  upper.body.allowGravity = false;
+
+  const lower = scene.physics.add.sprite(xPos, verticalPos + gap, "pipe")
+    .setOrigin(0, 0);
+  lower.body.allowGravity = false;
+
+  // give pipes velocity towards the player
+  upper.body.velocity.x = -200;
+  lower.body.velocity.x = -200;
+}
+```
+
+---
+
+# ✅ **6. Moving pipes left**
+
+Just set body velocity:
+
+```js
+upperPipe.body.velocity.x = -200;
+lowerPipe.body.velocity.x = -200;
+```
+
+Now the pipes scroll toward the player.
+
+---
+
+# ✅ **7. What happens now**
+
+✔ Pipes spawn at:
+
+```
+x = canvas width + (index * horizontal_distance)
+```
+
+✔ Only 1 will be visible at a time.
+✔ Others are pre-loaded off-screen.
+✔ All pipes move towards the bird.
+✔ This creates an infinite-runner feeling.
+
+---
+
+# ⚡ **FULL COMBINED SNIPPET (Ready to paste)**
+
+```js
+const PIPES_TO_RENDER = 4;
+let pipeHorizontalDistance = 0;
+
+function create() {
+  this.bg = this.add.tileSprite(0, 0, config.width, config.height, "sky").setOrigin(0);
+
+  bird = this.physics.add.sprite(INITIAL_BIRD_POSITION.x, INITIAL_BIRD_POSITION.y, "bird")
+    .setOrigin(0);
+  bird.body.gravity.y = GRAVITY;
+
+  // generate multiple pipes
+  for (let i = 0; i < PIPES_TO_RENDER; i++) {
+    createPipe(this, i);
+  }
+}
+
+function createPipe(scene, index) {
+  const [minGap, maxGap] = pipeVerticalDistanceRange;
+  const gap = Phaser.Math.Between(minGap, maxGap);
+
+  const verticalPos = Phaser.Math.Between(
+    PIPE_VERTICAL_MARGIN,
+    CANVAS_HEIGHT - PIPE_VERTICAL_MARGIN - gap
+  );
+
+  // horizontal offset
+  const xPos = CANVAS_WIDTH + index * 400;
+
+  const upper = scene.physics.add.sprite(xPos, verticalPos, "pipe")
+    .setOrigin(0, 1);
+  upper.body.allowGravity = false;
+
+  const lower = scene.physics.add.sprite(xPos, verticalPos + gap, "pipe")
+    .setOrigin(0, 0);
+  lower.body.allowGravity = false;
+
+  // pipes move left
+  upper.body.velocity.x = -200;
+  lower.body.velocity.x = -200;
+}
+```
+
+---
+
+# Want next lecture’s notes too?
+
+Just say **"continue"** and I’ll give:
+
+* Pipe recycling system
+* Collision with pipes
+* Score system
+* Restart mechanics
+
+Happy coding 🚀
